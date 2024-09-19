@@ -4,13 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,8 +39,10 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SimpleScreen() {
-    var userInput by remember { mutableStateOf("") }
-    var submittedText by remember { mutableStateOf("") }
+    var namaInput by remember { mutableStateOf("") }
+    var nimInput by remember { mutableStateOf("") }
+    var submittedTextNama by remember { mutableStateOf("") }
+    var submittedTextNim by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -45,18 +51,49 @@ fun SimpleScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        if (submittedText.isNotEmpty()) {
+        if (submittedTextNama.isNotEmpty() && submittedTextNim.isNotEmpty()) {
             Text(
-                text = "Input: $submittedText",
-                fontSize = 24.sp,
-                color = Color.Blue
+                text = "Nama: $submittedTextNama",
+                fontSize = 18.sp,
+                color = Color.Black
+            )
+            Text(
+                text = "NIM: $submittedTextNim",
+                fontSize = 18.sp,
+                color = Color.Black
             )
             Spacer(modifier = Modifier.height(20.dp))
         }
+
         TextField(
-            value = userInput,
-            onValueChange = { userInput = it },
-            label = { Text("Masukkan Teks😉") },
+            value = namaInput,
+            onValueChange = { namaInput = it },
+            label = { Text("Masukkan Nama") },
+            leadingIcon = {
+                Icon(Icons.Filled.AccountCircle, contentDescription = "Icon Profil")
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = Color(0xFFBBDEFB),
+                focusedIndicatorColor = Color(0xFF1E88E5),
+                unfocusedIndicatorColor = Color(0xFF1E88E5),
+                focusedLabelColor = Color(0xFF1E88E5)
+            ),
+            textStyle = TextStyle(fontSize = 18.sp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TextField(
+            value = nimInput,
+            onValueChange = { nimInput = it },
+            label = { Text("Masukkan NIM") },
+            leadingIcon = {
+                Icon(Icons.Filled.Star, contentDescription = "Icon NIM")
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
@@ -73,7 +110,8 @@ fun SimpleScreen() {
 
         Button(
             onClick = {
-                submittedText = userInput
+                submittedTextNama = namaInput
+                submittedTextNim = nimInput
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF1E88E5)
