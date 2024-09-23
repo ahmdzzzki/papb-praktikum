@@ -44,6 +44,9 @@ fun SimpleScreen() {
     var submittedTextNama by remember { mutableStateOf("") }
     var submittedTextNim by remember { mutableStateOf("") }
 
+    // UI state
+    val isFormValid = namaInput.isNotEmpty() && nimInput.isNotEmpty()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -113,8 +116,9 @@ fun SimpleScreen() {
                 submittedTextNama = namaInput
                 submittedTextNim = nimInput
             },
+            enabled = isFormValid,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF1E88E5)
+                containerColor = if (isFormValid) Color(0xFF1E88E5) else Color.Gray
             ),
             modifier = Modifier
                 .fillMaxWidth()
