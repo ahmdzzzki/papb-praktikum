@@ -1,79 +1,97 @@
 package com.example.papbpraktikum
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.FirebaseAuth
 import com.example.papbpraktikum.ui.theme.PAPBPraktikumTheme
 
 class MainActivity : ComponentActivity() {
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // inisialisasi firebase auth
+        auth = FirebaseAuth.getInstance()
+
         setContent {
             PAPBPraktikumTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SimpleScreen()
+                    SimpleScreen(onLoginClick = { email, password ->
+                        loginWithEmail(email, password)
+                    })
                 }
             }
+        }
+    }
+
+    // fungsi login pakai firebase authentication
+    private fun loginWithEmail(email: String, password: String) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Log.d("MainActivity", "Login sukses, navigasi ke ListActivity")
+                    navigateToListActivity()
+                } else {
+                    Log.e("MainActivity", "Login gagal: ${task.exception?.message}")
+                    Toast.makeText(this, "Login gagal: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+    }
+
+    // fungsi untuk navigasi ke ListActivity
+    private fun navigateToListActivity() {
+        try {
+            Log.d("MainActivity", "Navigating to ListActivity")
+            val intent = Intent(this, ListActivity::class.java)
+            startActivity(intent)
+            finish()
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Navigasi ke ListActivity gagal: ${e.message}")
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SimpleScreen() {
-    var namaInput by remember { mutableStateOf("") }
-    var nimInput by remember { mutableStateOf("") }
-    var submittedTextNama by remember { mutableStateOf("") }
-    var submittedTextNim by remember { mutableStateOf("") }
-
-    // UI state
-    val isFormValid = namaInput.isNotEmpty() && nimInput.isNotEmpty()
+fun SimpleScreen(onLoginClick: (String, String) -> Unit) {
+    var emailInput by remember { mutableStateOf("") }
+    var passwordInput by remember { mutableStateOf("") }
+    val isFormValid = emailInput.isNotEmpty() && passwordInput.isNotEmpty()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        if (submittedTextNama.isNotEmpty() && submittedTextNim.isNotEmpty()) {
-            Text(
-                text = "Nama: $submittedTextNama",
-                fontSize = 18.sp,
-                color = Color.Black
-            )
-            Text(
-                text = "NIM: $submittedTextNim",
-                fontSize = 18.sp,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-        }
-
         TextField(
-            value = namaInput,
-            onValueChange = { namaInput = it },
-            label = { Text("Masukkan Nama") },
+            value = emailInput,
+            onValueChange = { emailInput = it },
+            label = { Text("Email") },
             leadingIcon = {
-                Icon(Icons.Filled.AccountCircle, contentDescription = "Icon Profil")
+                Icon(Icons.Filled.AccountCircle, contentDescription = "Icon Email")
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -90,16 +108,17 @@ fun SimpleScreen() {
         Spacer(modifier = Modifier.height(16.dp))
 
         TextField(
-            value = nimInput,
-            onValueChange = { nimInput = it },
-            label = { Text("Masukkan NIM") },
+            value = passwordInput,
+            onValueChange = { passwordInput = it },
+            label = { Text("Password") },
             leadingIcon = {
-                Icon(Icons.Filled.Star, contentDescription = "Icon NIM")
+                Icon(Icons.Filled.Lock, contentDescription = "Icon Password")
             },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
+            visualTransformation = PasswordVisualTransformation(), // sembunyiin password
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color(0xFFBBDEFB),
                 focusedIndicatorColor = Color(0xFF1E88E5),
@@ -112,10 +131,7 @@ fun SimpleScreen() {
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(
-            onClick = {
-                submittedTextNama = namaInput
-                submittedTextNim = nimInput
-            },
+            onClick = { onLoginClick(emailInput, passwordInput) },
             enabled = isFormValid,
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isFormValid) Color(0xFF1E88E5) else Color.Gray
@@ -124,15 +140,7 @@ fun SimpleScreen() {
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-            Text(text = "Submit", color = Color.White)
+            Text("Login", color = Color.White)
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SimpleScreenPreview() {
-    PAPBPraktikumTheme {
-        SimpleScreen()
     }
 }
