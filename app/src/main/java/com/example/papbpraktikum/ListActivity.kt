@@ -40,12 +40,17 @@ fun DataListScreen() {
             .addOnSuccessListener { result ->
                 val items = result.documents.map { document ->
                     DataModel(
-                        nama = document.getString("nama") ?: "",
-                        nim = document.getString("nim") ?: "",
-                        hobi = document.getString("hobi") ?: ""
+                        mata_kuliah = document.getString("mata_kuliah") ?: "-",
+                        hari = Hari.valueOf(document.getString("hari")?.uppercase() ?: "-"),
+                        jam_mulai = document.getString("jam_mulai") ?: "-",
+                        jam_selesai = document.getString("jam_selesai") ?: "-",
+                        ruang = document.getString("ruang") ?: "-"
                     )
                 }
-                dataList = items
+                dataList = items.sortedWith(
+                    compareBy<DataModel> { it.hari.urutan }
+                        .thenBy { it.jam_mulai }
+                )
             }
     }
 
@@ -67,12 +72,28 @@ fun DataCard(data: DataModel) {
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Nama: ${data.nama}", style = MaterialTheme.typography.bodyMedium)
-            Text("NIM: ${data.nim}", style = MaterialTheme.typography.bodyMedium)
-            Text("Hobi: ${data.hobi}", style = MaterialTheme.typography.bodyMedium)
-
+            Text("Mata Kuliah: ${data.mata_kuliah}", style = MaterialTheme.typography.bodyMedium)
+            Text("Hari: ${data.hari}", style = MaterialTheme.typography.bodyMedium)
+            Text("Jam: ${data.jam_mulai} - ${data.jam_selesai}", style = MaterialTheme.typography.bodyMedium)
+            Text("Ruang: ${data.ruang}", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
 
-data class DataModel(val nama: String, val nim: String, val hobi: String)
+data class DataModel(
+    val mata_kuliah: String,
+    val hari: Hari,
+    val jam_mulai: String,
+    val jam_selesai: String,
+    val ruang: String
+)
+
+enum class Hari(val urutan: Int) {
+    SENIN(1),
+    SELASA(2),
+    RABU(3),
+    KAMIS(4),
+    JUMAT(5),
+    SABTU(6),
+    MINGGU(7)
+}
