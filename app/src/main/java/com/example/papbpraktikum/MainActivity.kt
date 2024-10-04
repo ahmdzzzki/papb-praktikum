@@ -15,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -22,6 +23,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuth
 import com.example.papbpraktikum.ui.theme.PAPBPraktikumTheme
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.launch
+
 
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -55,7 +59,11 @@ class MainActivity : ComponentActivity() {
                     navigateToListActivity()
                 } else {
                     Log.e("MainActivity", "Login gagal: ${task.exception?.message}")
-                    Toast.makeText(this, "Login gagal: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this,
+                        "Login gagal: ${task.exception?.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
     }
@@ -78,7 +86,11 @@ class MainActivity : ComponentActivity() {
 fun SimpleScreen(onLoginClick: (String, String) -> Unit) {
     var emailInput by remember { mutableStateOf("") }
     var passwordInput by remember { mutableStateOf("") }
+    var loginTriggered by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
     val isFormValid = emailInput.isNotEmpty() && passwordInput.isNotEmpty()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope() // untuk launch login logic in coroutine scope
 
     Column(
         modifier = Modifier
@@ -117,7 +129,7 @@ fun SimpleScreen(onLoginClick: (String, String) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-            visualTransformation = PasswordVisualTransformation(), // sembunyiin password
+            visualTransformation = PasswordVisualTransformation(), // hide password input
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color(0xFFBBDEFB),
@@ -131,7 +143,9 @@ fun SimpleScreen(onLoginClick: (String, String) -> Unit) {
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(
-            onClick = { onLoginClick(emailInput, passwordInput) },
+            onClick = {
+                loginTriggered = true
+            },
             enabled = isFormValid,
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isFormValid) Color(0xFF1E88E5) else Color.Gray
@@ -141,6 +155,35 @@ fun SimpleScreen(onLoginClick: (String, String) -> Unit) {
                 .padding(horizontal = 16.dp)
         ) {
             Text("Login", color = Color.White)
+        }
+
+        errorMessage?.let {
+            Text(it, color = Color.Red, modifier = Modifier.padding(top = 8.dp))
+        }
+    }
+
+    // meng-handle login logic di dalam LaunchedEffect agar composable tetap murni
+    if (loginTriggered) {
+        LaunchedEffect(Unit) {
+            scope.launch {
+                try {
+                    val auth = FirebaseAuth.getInstance()
+                    auth.signInWithEmailAndPassword(emailInput, passwordInput)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                Log.d("SimpleScreen", "Login successful")
+                                val intent = Intent(context, ListActivity::class.java)
+                                context.startActivity(intent)
+                            } else {
+                                errorMessage = "Login failed: ${task.exception?.message}"
+                                Log.e("SimpleScreen", "Login failed: ${task.exception?.message}")
+                            }
+                        }
+                } catch (e: Exception) {
+                    errorMessage = "Error during login: ${e.message}"
+                }
+                loginTriggered = false
+            }
         }
     }
 }

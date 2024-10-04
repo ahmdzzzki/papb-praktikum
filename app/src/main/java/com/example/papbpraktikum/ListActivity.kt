@@ -1,8 +1,11 @@
 package com.example.papbpraktikum
 
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,36 +15,62 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberImagePainter
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.papbpraktikum.ui.theme.PAPBPraktikumTheme
 
 class ListActivity : ComponentActivity() {
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             PAPBPraktikumTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    DataListScreen()
-                }
+                Scaffold(
+                    topBar = {
+                        ListActivityTopBar(
+                            onGithubProfileClick = {
+                                val intent = Intent(this@ListActivity, GithubProfileActivity::class.java)
+                                startActivity(intent)
+                            }
+                        )
+                    },
+                    content = { paddingValues ->
+                        DataListScreen(modifier = Modifier.padding(paddingValues))
+                    }
+                )
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DataListScreen() {
+fun ListActivityTopBar(onGithubProfileClick: () -> Unit) {
+    TopAppBar(
+        title = { Text("Jadwal Kuliah") },
+        actions = {
+            IconButton(onClick = { onGithubProfileClick() }) {
+                Image(
+                    painter = rememberImagePainter("https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"),
+                    contentDescription = "GitHub Logo",
+                    modifier = Modifier.size(48.dp)
+                )
+            }
+        }
+    )
+}
+
+@Composable
+fun DataListScreen(modifier: Modifier = Modifier) {
     val db = FirebaseFirestore.getInstance()
-    var dataList by remember { mutableStateOf(listOf<DataModel>()) }
+    var dataList by remember { mutableStateOf(listOf<JadwalKuliah>()) }
 
     LaunchedEffect(Unit) {
         db.collection("data_collection_papb")
             .get()
             .addOnSuccessListener { result ->
                 val items = result.documents.map { document ->
-                    DataModel(
+                    JadwalKuliah(
                         mata_kuliah = document.getString("mata_kuliah") ?: "-",
                         hari = Hari.valueOf(document.getString("hari")?.uppercase() ?: "-"),
                         jam_mulai = document.getString("jam_mulai") ?: "-",
@@ -51,15 +80,16 @@ fun DataListScreen() {
                     )
                 }
                 dataList = items.sortedWith(
-                    compareBy<DataModel> { it.hari.urutan }
+                    compareBy<JadwalKuliah> { it.hari.urutan }
                         .thenBy { it.jam_mulai }
                 )
             }
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(dataList) { data ->
@@ -69,7 +99,7 @@ fun DataListScreen() {
 }
 
 @Composable
-fun DataCard(data: DataModel) {
+fun DataCard(data: JadwalKuliah) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(4.dp)
@@ -88,31 +118,12 @@ fun DataCard(data: DataModel) {
     }
 }
 
-data class DataModel(
-    val mata_kuliah: String,
-    val hari: Hari,
-    val jam_mulai: String,
-    val jam_selesai: String,
-    val ruang: String,
-    val praktikum: Boolean
-)
-
-enum class Hari(val urutan: Int) {
-    SENIN(1),
-    SELASA(2),
-    RABU(3),
-    KAMIS(4),
-    JUMAT(5),
-    SABTU(6),
-    MINGGU(7)
-}
-
 @Preview(showBackground = true)
 @Composable
 fun DataCardPreview() {
     PAPBPraktikumTheme {
         DataCard(
-            data = DataModel(
+            data = JadwalKuliah(
                 mata_kuliah = "Pemrograman Dasar",
                 hari = Hari.SELASA,
                 jam_mulai = "10:00",
