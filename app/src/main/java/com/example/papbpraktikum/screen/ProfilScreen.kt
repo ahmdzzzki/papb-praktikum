@@ -1,13 +1,15 @@
-package com.example.papbpraktikum
+package com.example.papbpraktikum.screen
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,27 +20,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
+import com.example.papbpraktikum.ApiClient
+import com.example.papbpraktikum.GithubProfile
 import com.example.papbpraktikum.ui.theme.PAPBPraktikumTheme
 import kotlinx.coroutines.launch
 
-class GithubProfileActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            PAPBPraktikumTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    GithubProfileScreen()
-                }
-            }
-        }
-    }
-}
-
 @Composable
-fun GithubProfileScreen() {
+fun ProfilScreen() {
     val coroutineScope = rememberCoroutineScope()
     var profile by remember { mutableStateOf<GithubProfile?>(null) }
     var isLoading by remember { mutableStateOf(true) }
@@ -52,7 +40,7 @@ fun GithubProfileScreen() {
     }
 
     if (isLoading) {
-        CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+        CircularProgressIndicator(modifier = Modifier.fillMaxSize())
     } else {
         profile?.let {
             GithubProfileContent(
