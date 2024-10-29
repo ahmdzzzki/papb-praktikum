@@ -11,7 +11,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -38,7 +37,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         FirebaseApp.initializeApp(this)
-        // inisialisasi FirebaseAuth
         auth = FirebaseAuth.getInstance()
 
         setContent {
@@ -49,6 +47,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+
 
 @Composable
 fun MainScreen(navController: NavHostController) {
@@ -79,6 +79,8 @@ fun MainScreen(navController: NavHostController) {
         }
     }
 }
+
+
 
 fun handleLogin(email: String, password: String, onResult: (Boolean) -> Unit) {
     FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
