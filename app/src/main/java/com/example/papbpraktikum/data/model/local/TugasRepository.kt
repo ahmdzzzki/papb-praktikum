@@ -1,6 +1,7 @@
 package com.example.papbpraktikum.data.model.local
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.LiveData
 
 class TugasRepository(application: Application) {
@@ -18,5 +19,7 @@ class TugasRepository(application: Application) {
 
     suspend fun deleteTugas(tugas: Tugas) {
         tugasDao.deleteTugas(tugas)
+        Log.d("TugasRepository", "Deleted Tugas ID: ${tugas.id}, with Image URI: ${tugas.imageUri}")
     }
+
 }

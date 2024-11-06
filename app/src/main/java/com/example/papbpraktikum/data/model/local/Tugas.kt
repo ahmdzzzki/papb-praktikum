@@ -19,6 +19,9 @@ data class Tugas(
     @ColumnInfo(name = "detail_tugas")
     var detailTugas: String,
 
+    @ColumnInfo(name = "image_uri")
+    var imageUri: String? = null,
+
     @ColumnInfo(name = "selesai")
     var selesai: Boolean = false
 ) : Parcelable

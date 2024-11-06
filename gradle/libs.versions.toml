@@ -1,5 +1,7 @@
 [versions]
 agp = "8.5.2"
+cameraCamera2 = "1.1.0"
+cameraView = "1.0.0-alpha29"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -13,6 +15,11 @@ roomRuntime = "2.6.1"
 runtimeLivedata = "1.7.4"
 
 [libraries]
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
+androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCamera2" }
+androidx-camera-extensions = { module = "androidx.camera:camera-extensions", version.ref = "cameraView" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraCamera2" }
+androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraView" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

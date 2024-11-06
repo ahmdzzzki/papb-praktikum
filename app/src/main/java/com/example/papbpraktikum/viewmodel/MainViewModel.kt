@@ -28,5 +28,3 @@ class MainViewModel(private val tugasRepository: TugasRepository) : ViewModel() 
         }
     }
 }
-
-

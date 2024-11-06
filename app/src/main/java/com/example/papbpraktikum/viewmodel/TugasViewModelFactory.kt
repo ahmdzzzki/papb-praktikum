@@ -4,8 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.papbpraktikum.data.model.local.TugasRepository
 
-// Factory for ViewModel if not using Dependency Injection (Hilt)
-class MainViewModelFactory(private val repository: TugasRepository) : ViewModelProvider.Factory {
+class TugasViewModelFactory(private val repository: TugasRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
