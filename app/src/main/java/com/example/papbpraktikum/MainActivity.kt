@@ -1,7 +1,6 @@
 package com.example.papbpraktikum
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.camera.core.ImageCapture
@@ -25,14 +24,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.papbpraktikum.data.model.local.TugasRepository
 import com.example.papbpraktikum.navigation.Screen
-import com.example.papbpraktikum.screen.LoginScreen
 import com.example.papbpraktikum.screen.MatkulScreen
 import com.example.papbpraktikum.screen.ProfilScreen
 import com.example.papbpraktikum.screen.TugasScreen
 import com.example.papbpraktikum.ui.theme.PAPBPraktikumTheme
 import com.example.papbpraktikum.viewmodel.MainViewModel
 import com.example.papbpraktikum.viewmodel.TugasViewModelFactory
-import com.google.firebase.auth.FirebaseAuth
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -60,49 +57,21 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(navController: NavHostController, tugasViewModel: MainViewModel) {
-    var isLoginSuccessful by remember { mutableStateOf(false) }
-
-    if (isLoginSuccessful) {
-        Scaffold(
-            bottomBar = { BottomNavigationBar(navController) }
-        ) { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = Screen.Matkul.route,
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                composable(Screen.Matkul.route) { MatkulScreen() }
-                composable(Screen.Tugas.route) {
-                    TugasScreen(tugasViewModel = tugasViewModel)
-                }
-                composable(Screen.Profil.route) { ProfilScreen() }
+    Scaffold(
+        bottomBar = { BottomNavigationBar(navController) }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Matkul.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(Screen.Matkul.route) { MatkulScreen() }
+            composable(Screen.Tugas.route) {
+                TugasScreen(tugasViewModel = tugasViewModel)
             }
-        }
-    } else {
-        LoginScreen { email, password ->
-            handleLogin(email, password) { success ->
-                if (success) {
-                    isLoginSuccessful = true
-                } else {
-                    // Handle login failure if needed
-                }
-            }
+            composable(Screen.Profil.route) { ProfilScreen() }
         }
     }
-}
-
-
-fun handleLogin(email: String, password: String, onResult: (Boolean) -> Unit) {
-    FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
-        .addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Log.d("MainActivity", "Login berhasil")
-                onResult(true)  // Login successful
-            } else {
-                Log.e("MainActivity", "Login gagal: ${task.exception?.message}")
-                onResult(false) // Login failed
-            }
-        }
 }
 
 @Composable
@@ -135,7 +104,6 @@ fun BottomNavigationBar(navController: NavHostController) {
             selectedContentColor = Color.White,
             unselectedContentColor = Color.White
         )
-
         BottomNavigationItem(
             label = { Text("Profil", color = Color.White) },
             icon = { Icon(Icons.Default.Person, contentDescription = "Profil") },
